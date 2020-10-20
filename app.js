@@ -124,12 +124,12 @@ function result(n1, operator, n2){
 function depressedMouseDown(e){
     const keyDepressed = e.target;
     if(keyDepressed.className.includes('is-depressed'))
-        keyDepressed.style.opacity = 0.5;
+        keyDepressed.classList.add('is-more-depressed');
 }
 
 function depressedMouseUp(e){
     const keyDepressed = e.target;
-    if(keyDepressed.className.includes('is-depressed')) keyDepressed.style.opacity = 0.75;
+    if(keyDepressed.className.includes('is-depressed')) keyDepressed.classList.remove('is-more-depressed');
 }
 // function decimalPressed(){
 //     if(decimal){
