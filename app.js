@@ -1,13 +1,8 @@
 const keys = document.querySelector('.calculator__keys');
 const keyOperators = document.querySelectorAll('.key-operator');
 const display = document.querySelector('.calculator__display');
-const operators = ['add','substract','multiply','divide'];
 const calculator = document.querySelector('.calculator');
-let firstValue = '';
-let operation = '';
-let secondValue = '';
-
-// const pressedNumbers = [];
+const operators = ['add','substract','multiply','divide'];
 const decimal = 'decimal';
 const clear = 'clear';
 const calculate = 'calculate';
@@ -29,46 +24,89 @@ function printNumbers(e){
     // is number
     if(!action){
         // debugger;
-        if(previousKeyType === 'operator'){
+        if(previousKeyType === 'operator' || previousKeyType === 'calculate'){
             display.textContent = key;
-            calculator.dataset.previousKey = 'number';
         } else{
             displayNumbers(key);
         }
+
+        calculator.dataset.previousKey = 'number';
         disablingDepressed();
     }
     if(e.target.className === 'key-operator'){
         disablingDepressed();
         operators.map(operator => {
-            action === operator;
-            e.target.classList.add('is-depressed');
-            calculator.dataset.previousKey = 'operator';
-            firstValue = display.textContent;
-            operation = action;
+            if(action === operator){
+                const first = calculator.dataset.firstValue;
+                const operation = calculator.dataset.operation;
+                const second = displayedNumber;
+                // When click second time a operation first and operation will have a value
+
+                if(first && operation && previousKeyType !== 'operator' && previousKeyType !== 'calculate'){
+                    const calcValue = result(first, operation, second);
+                    display.textContent = calcValue;
+                    //Calc value wil be first value
+                    calculator.dataset.firstValue = calcValue; 
+                }else{
+                    calculator.dataset.firstValue = displayedNumber;
+                }
+                
+                e.target.classList.add('is-depressed');
+                calculator.dataset.previousKey = 'operator';
+               
+                calculator.dataset.operation = action;
+
+            }
         });
     }
 
     if(action === decimal) {
-        calculator.dataset.previousKey = 'decimal';
         if(!displayedNumber.includes('.')) display.textContent = displayedNumber + '.';
-        if(previousKeyType === 'operator') display.textContent = '0.';
+        if(previousKeyType === 'operator' || previousKeyType === 'calculate') display.textContent = '0.';
+        calculator.dataset.previousKey = 'decimal';
         disablingDepressed();
     }
     // Clearing the display
     if(action === clear) {
-        calculator.dataset.previousKey = 'clear';
+        const clearButton = document.querySelector('[data-action="clear"]');
+        if(clearButton.textContent === 'AC'){
+            calculator.dataset.firstValue = '';
+            calculator.dataset.previousKey = '';
+            calculator.dataset.operation = '';
+            calculator.dataset.modValue = '';
+        }else{
+            clearButton.textContent = 'AC';
+        }
+        clearButton.textContent = 'AC';
         display.textContent = '0';
+        calculator.dataset.previousKey = 'clear';
+       
         disablingDepressed();
     } 
 
-    if(action === calculate){
-        calculator.dataset.previousKey = 'calculate'
-        secondValue = display.textContent;
-        console.log('Second', secondValue);
-        disablingDepressed();
-        result(firstValue, operation, secondValue);
+    if(action !== clear){
+        const clearButton = document.querySelector('[data-action="clear"]');
+        clearButton.textContent = 'CE';
     }
 
+    if(action === calculate){
+        let first = calculator.dataset.firstValue;
+        const operation = calculator.dataset.operation;
+        let second = displayedNumber;
+      
+        if(first){
+            if(previousKeyType === 'calculate'){
+                first = displayedNumber;
+                second = calculator.dataset.modValue;
+            }
+            displayNumbers(result(first, operation, second));
+        }
+    
+        // Modifier value
+        calculator.dataset.modValue = second;
+        calculator.dataset.previousKey = 'calculate';
+        disablingDepressed();
+    }
 
 }
 
@@ -77,22 +115,10 @@ function displayNumbers(number){
      display.textContent += number;
 }
 
-// function gettingParsedNumbers(){
-//     const parsedNumber = parseFloat(display.textContent);
-//     return parsedNumber;
-// }
-
-// function lengthOfDisplay(){
-//     if(display.textContent.length > 13){
-//         alert('You can´t type 14 numbers length in the calculator display');
-//     } 
-// }
-
 function disablingDepressed(){
     const depressed = document.querySelectorAll('.is-depressed');
         [...depressed].forEach(item => {
             item.classList.remove('is-depressed');
-            // item.style.opacity = 1;
         });
 }
 
@@ -114,11 +140,9 @@ function result(n1, operator, n2){
             equal = first / second;
             break;
     }
-
     
     display.textContent = '';
-    displayNumbers(equal);
-    if(first && operation) result(first, operation, second);
+    return equal;
 }
 
 function depressedMouseDown(e){
@@ -131,9 +155,3 @@ function depressedMouseUp(e){
     const keyDepressed = e.target;
     if(keyDepressed.className.includes('is-depressed')) keyDepressed.classList.remove('is-more-depressed');
 }
-// function decimalPressed(){
-//     if(decimal){
-//         console.log('hola');
-//     }
-// }
-// decimalPressed();
