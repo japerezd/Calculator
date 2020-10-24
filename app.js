@@ -20,6 +20,7 @@ const getKeyType = key => {
     // if is nothing above, return the action (clear, equal, decimal)
     return action;
 }
+// its changes all for display.textContent 
 const createResultString = (key, displayedNumber, state) => {
     const keyContent = key.textContent;
     const {previousKeyType, firstValue, modValue, operator} = state;
@@ -61,14 +62,34 @@ const createResultString = (key, displayedNumber, state) => {
     }
 };
 
+// changes attributes and visual appearence (animations)
 const updateCalculatorState = (key, calculator) => {
+    // 1. calcValue
+    // 2. displayedNumber
+    // 3. key
+    // 4. calculator
+
     const keyType = getKeyType(key);
     calculator.dataset.previousKeyType = keyType;
-    if(keyType === 'number') calculator.dataset.previousKeyType = 'number';
-    if(keyType === 'operator') calculator.dataset.previousKeyType = 'operator';
-    if(keyType === 'decimal') calculator.dataset.previousKeyType = 'decimal';
-    if(keyType === 'clear') calculator.dataset.previousKeyType = 'clear';
-    if(keyType === 'calculate') calculator.dataset.previousKeyType = 'calculate';
+    if(keyType === 'number') disablingDepressed();
+
+    if(keyType === 'operator'){
+        disablingDepressed();
+
+        calculator.dataset.firstValue = firstValue && operator && previousKeyType !== 'operator' && previousKeyType !== 'calculate' ? calcValue : displayedNumber;
+        
+        calculator.dataset.operator = key.dataset.action;
+        
+        key.classList.add('is-depressed');
+       
+        calculator.dataset.operator = key.dataset.action;
+    }
+
+    if(keyType === 'decimal') console.log(1);
+    if(keyType === 'clear') {
+        
+    }
+    if(keyType === 'calculate') console.log(1);
 }
 
 function printNumbers(e){
@@ -81,11 +102,9 @@ function printNumbers(e){
     // NUMBER KEYS
     if(!action){
 
-        disablingDepressed();
     }
     // OPERATOR KEYS
     if(e.target.className === 'key-operator'){
-        disablingDepressed();
         operators.map(operator => {
             if(action === operator){
                 const first = calculator.dataset.firstValue;
@@ -93,17 +112,7 @@ function printNumbers(e){
                 const second = displayedNumber;
                 // When click second time a operation first and operation will have a value
 
-                if(first && operation && previousKeyType !== 'operator' && previousKeyType !== 'calculate'){
-                    const calcValue = result(first, operation, second);
-                    //Calc value wil be first value
-                    calculator.dataset.firstValue = calcValue; 
-                }else{
-                    calculator.dataset.firstValue = displayedNumber;
-                }
                 
-                e.target.classList.add('is-depressed');
-               
-                calculator.dataset.operation = action;
 
             }
         });
